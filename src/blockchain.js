@@ -186,7 +186,7 @@ class Blockchain {
                             console.debug(`getStarsByWalletAddress -> ${b.height} MATCHED! adding to array..`)
                             stars.push(data);
                         }
-                    }).catch (error => {console.debug(`ERROR FOUND: ${b.height} ${error}`)})
+                    }).catch (error => {console.warn(`ERROR FOUND: ${b.height} ${error}`)})
                 );
             });
 
@@ -210,8 +210,9 @@ class Blockchain {
         let self = this;
         let errorLog = [];
         return new Promise(async (resolve, reject) => {
-            Promise.all(
-                self.chain.forEach(b => {
+            let promises = [];
+            self.chain.forEach(b => {
+                promises.push(
                     b.validate().then(verified => {
                         let hashBroken = b.height > 0 ? self.chain[b.height-1].hash !== b.previousBlockHash : false;
                         if (!verified){
@@ -222,10 +223,13 @@ class Blockchain {
                             console.warn(`Chain broken at ${b.height}...`);
                             errorLog.push('CHAIN BROKEN');
                         }
-                    });
-                })
-            );
-            resolve(errorLog);
+                    }).catch (error => {console.warn(`ERROR: ${error}`)})
+                )
+            });
+
+            Promise.all(promises).then(() => {
+                resolve(errorLog);
+            });
         });
     }
 
