@@ -9,6 +9,7 @@ describe('Test Blockchain', () => {
     // #1
     it('Test add genesis block', async () => {
         let blockchain = await new Blockchain.Blockchain();
+        console.debug(`Test Blockchain -> blockchain instance received: ${blockchain.chain}`)
         expect(blockchain.height).toBe(0);
         expect(blockchain.chain.length).toBe(1);
         let genesis = blockchain.chain[0];

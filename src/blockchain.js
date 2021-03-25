@@ -26,10 +26,7 @@ class Blockchain {
         this.chain = [];
         this.height = -1;
         this.initializeChain();
-    }
-
-    chain(){
-        return this.chain;
+        console.debug('Finishing constructor..');
     }
 
     /**
@@ -41,6 +38,7 @@ class Blockchain {
         if( this.height === -1){
             let block = new BlockClass.Block({data: 'Genesis Block'});
             await this._addBlock(block);
+            console.debug('Finishing initializeChain...');
         }
     }
 
@@ -68,18 +66,21 @@ class Blockchain {
     _addBlock(block) {
         let self = this;
         return new Promise(async (resolve, reject) => {
-            try {
-                if (this.height > -1){
-                    block.previousBlockHash = self.chain[self.height].hash;
-                }
-                block.height = ++self.height;
-                block.time = new Date().getTime().toString().slice(0,-3);
-                block.hash = SHA256(JSON.stringify(block));
+            if (this.height > -1){
+                block.previousBlockHash = self.chain[self.height].hash;
+            }
+            block.height = self.height+1;
+            block.time = new Date().getTime().toString().slice(0,-3);
+            block.hash = SHA256(JSON.stringify(block));
+            console.debug(`validated chain starts...`);
+            let errors = await self.validateChain();
+            console.debug(`validated chain ends...`);
+            if (errors.length === 0){
                 self.chain.push(block);
+                self.height++;
                 resolve(block);
-            } catch (e){
-                self.height--;
-                reject(e);
+            } else {
+                reject(errors);
             }
         });
     }

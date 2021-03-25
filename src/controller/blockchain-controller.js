@@ -121,4 +121,4 @@ class BlockchainController {
 
 }
 
-module.exports = (app, blockchainObj) => { return new BlockchainController(app, blockchainObj);}
+module.exports.BlockchainController = BlockchainController;

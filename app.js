@@ -31,7 +31,7 @@ class ApplicationServer{
     }
 
     initController(){
-        BlockchainController(this.app, this.blockchain);
+        new BlockchainController.BlockchainController(this.app, this.blockchain);
     }
 
     start(){
