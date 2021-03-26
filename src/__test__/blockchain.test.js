@@ -8,8 +8,8 @@ describe('Test Blockchain', () => {
 
     // #1
     it('Test add genesis block', async () => {
-        let blockchain = await new Blockchain.Blockchain();
-        console.debug(`Test Blockchain -> blockchain instance received: ${blockchain.chain}`)
+        let blockchain = new Blockchain.Blockchain();
+        await blockchain.initPromise;
         expect(blockchain.height).toBe(0);
         expect(blockchain.chain.length).toBe(1);
         let genesis = blockchain.chain[0];
@@ -23,7 +23,8 @@ describe('Test Blockchain', () => {
     
     // #2
     it('Test add normal block', async () => {
-        let blockchain = await new Blockchain.Blockchain();
+        let blockchain = new Blockchain.Blockchain();
+        await blockchain.initPromise;
         let block = new Block.Block(test_data);
 
         return blockchain._addBlock(block).then(result => {
@@ -37,7 +38,8 @@ describe('Test Blockchain', () => {
 
     // #3
     it('Test requestMessageOwnershipVerification', async () => {
-        let blockchain = await new Blockchain.Blockchain();
+        let blockchain = new Blockchain.Blockchain();
+        await blockchain.initPromise;
         let block = new Block.Block(test_data);
         let wallet_addr = 'tb1q8d9zph5330g7h3xn5et8hddkex6fsds4jwk8j0';
 
@@ -51,7 +53,8 @@ describe('Test Blockchain', () => {
 
     // #4
     it('Test submitStar with expired message', async () =>{
-        let blockchain = await new Blockchain.Blockchain();
+        let blockchain = new Blockchain.Blockchain();
+        await blockchain.initPromise;
         let wallet_addr = 'tb1q8d9zph5330g7h3xn5et8hddkex6fsds4jwk8j0';
         let message = await blockchain.requestMessageOwnershipVerification(wallet_addr);
         let signature = 'aslk3rjasflka309rufjifasd;jcf0f2jjfojd20jrgj[qeadjv';
@@ -68,7 +71,8 @@ describe('Test Blockchain', () => {
 
     // #5
     it('Test submitStar with valid message', async () =>{
-        let blockchain = await new Blockchain.Blockchain();
+        let blockchain = new Blockchain.Blockchain();
+        await blockchain.initPromise;
         let wallet_addr = 'tb1q8d9zph5330g7h3xn5et8hddkex6fsds4jwk8j0';
         let message = await blockchain.requestMessageOwnershipVerification(wallet_addr);
         let signature = 'aslk3rjasflka309rufjifasd;jcf0f2jjfojd20jrgj[qeadjv';
@@ -87,7 +91,8 @@ describe('Test Blockchain', () => {
 
     // #6
     it('Test submitStar with invalid message', async () =>{
-        let blockchain = await new Blockchain.Blockchain();
+        let blockchain = new Blockchain.Blockchain();
+        await blockchain.initPromise;
         let wallet_addr = 'tb1q8d9zph5330g7h3xn5et8hddkex6fsds4jwk8j0';
         let message = await blockchain.requestMessageOwnershipVerification(wallet_addr);
         let signature = 'aslk3rjasflka309rufjifasd;jcf0f2jjfojd20jrgj[qeadjv';
@@ -104,13 +109,14 @@ describe('Test Blockchain', () => {
 
     // #7
     it('Test getBlockByHash with found', async () => {
-        let blockchain = await new Blockchain.Blockchain();
+        let blockchain = new Blockchain.Blockchain();
+        await blockchain.initPromise;
         let block = new Block.Block(test_data);
-        blockchain._addBlock(block);
+        await blockchain._addBlock(block);
         let hash = block.hash;
 
         let block2 = new Block.Block(test_data);
-        blockchain._addBlock(block2);
+        await blockchain._addBlock(block2);
 
         return blockchain.getBlockByHash(hash).then(result => {
             expect(result.length).toBe(1);
@@ -121,13 +127,14 @@ describe('Test Blockchain', () => {
 
     // #8
     it('Test getBlockByHash not found', async () => {
-        let blockchain = await new Blockchain.Blockchain();
+        let blockchain = new Blockchain.Blockchain();
+        await blockchain.initPromise;
         let block = new Block.Block(test_data);
-        blockchain._addBlock(block);
+        await blockchain._addBlock(block);
         let hash = block.hash;
 
         let block2 = new Block.Block(test_data);
-        blockchain._addBlock(block2);
+        await blockchain._addBlock(block2);
 
         return blockchain.getBlockByHash('A123').then(result => {
             expect(result).toBeNull();
@@ -137,14 +144,15 @@ describe('Test Blockchain', () => {
     
     // #9
     it('Test getStarsByWalletAddress with valid address', async () => {
-        let blockchain = await new Blockchain.Blockchain();
+        let blockchain = new Blockchain.Blockchain();
+        await blockchain.initPromise;
         let wallet_addr = 'tb1q8d9zph5330g7h3xn5et8hddkex6fsds4jwk8j0';
         let block = new Block.Block({data: test_data, address: wallet_addr});
-        blockchain._addBlock(block);
+        await blockchain._addBlock(block);
         let block2 = new Block.Block({data: test_data, address: wallet_addr});
-        blockchain._addBlock(block2);
+        await blockchain._addBlock(block2);
         let block3 = new Block.Block({data: test_data, address: 'abc123'});
-        blockchain._addBlock(block3);
+        await blockchain._addBlock(block3);
 
         return blockchain.getStarsByWalletAddress(wallet_addr).then(result => {
             expect(result.length).toBe(2);
@@ -156,14 +164,15 @@ describe('Test Blockchain', () => {
 
     // #10
     it('Test getStarsByWalletAddress with no valid address', async () => {
-        let blockchain = await new Blockchain.Blockchain();
+        let blockchain = new Blockchain.Blockchain();
+        await blockchain.initPromise;
         let wallet_addr = 'tb1q8d9zph5330g7h3xn5et8hddkex6fsds4jwk8j0';
         let block = new Block.Block({data: test_data, address: 'abc123'});
-        blockchain._addBlock(block);
+        await blockchain._addBlock(block);
         let block2 = new Block.Block({data: test_data, address: 'abc123'});
-        blockchain._addBlock(block2);
+        await blockchain._addBlock(block2);
         let block3 = new Block.Block({data: test_data, address: 'abc123'});
-        blockchain._addBlock(block3);
+        await blockchain._addBlock(block3);
 
         expect.assertions(1);
         return blockchain.getStarsByWalletAddress(wallet_addr).catch(error => {
@@ -174,14 +183,15 @@ describe('Test Blockchain', () => {
 
     // #11
     it('Test validateChain with broken chain', async () => {
-        let blockchain = await new Blockchain.Blockchain();
+        let blockchain = new Blockchain.Blockchain();
+        await blockchain.initPromise;
         let wallet_addr = 'tb1q8d9zph5330g7h3xn5et8hddkex6fsds4jwk8j0';
         let block = new Block.Block({data: test_data, address: wallet_addr});
-        blockchain._addBlock(block);
+        await blockchain._addBlock(block);
         let block2 = new Block.Block({data: test_data, address: 'abc123'});
-        blockchain._addBlock(block2);
+        await blockchain._addBlock(block2);
         let block3 = new Block.Block({data: test_data, address: 'abc123'});
-        blockchain._addBlock(block3);
+        await blockchain._addBlock(block3);
 
         jest.spyOn(block2, 'previousBlockHash', 'get').mockImplementation(() => 0);
 
@@ -194,14 +204,15 @@ describe('Test Blockchain', () => {
  
     // #12
     it('Test validateChain with invalid block', async () => {
-        let blockchain = await new Blockchain.Blockchain();
+        let blockchain = new Blockchain.Blockchain();
+        await blockchain.initPromise;
         let wallet_addr = 'tb1q8d9zph5330g7h3xn5et8hddkex6fsds4jwk8j0';
         let block = new Block.Block({data: test_data, address: wallet_addr});
-        blockchain._addBlock(block);
+        await blockchain._addBlock(block);
         let block2 = new Block.Block({data: test_data, address: 'abc123'});
-        blockchain._addBlock(block2);
+        await blockchain._addBlock(block2);
         let block3 = new Block.Block({data: test_data, address: 'abc123'});
-        blockchain._addBlock(block3);
+        await blockchain._addBlock(block3);
 
         jest.spyOn(block2, 'validate').mockImplementation(() => new Promise(resolve => {resolve(false)}));
 
@@ -214,14 +225,15 @@ describe('Test Blockchain', () => {
 
     // #13
     it('Test validateChain with both broken chain and invalid block', async () => {
-        let blockchain = await new Blockchain.Blockchain();
+        let blockchain = new Blockchain.Blockchain();
+        await blockchain.initPromise;
         let wallet_addr = 'tb1q8d9zph5330g7h3xn5et8hddkex6fsds4jwk8j0';
         let block = new Block.Block({data: test_data, address: wallet_addr});
-        blockchain._addBlock(block);
+        await blockchain._addBlock(block);
         let block2 = new Block.Block({data: test_data, address: 'abc123'});
-        blockchain._addBlock(block2);
+        await blockchain._addBlock(block2);
         let block3 = new Block.Block({data: test_data, address: 'abc123'});
-        blockchain._addBlock(block3);
+        await blockchain._addBlock(block3);
 
         jest.spyOn(block2, 'previousBlockHash', 'get').mockImplementation(() => 0);
         jest.spyOn(block2, 'validate').mockImplementation(() => new Promise(resolve => {resolve(false)}));
@@ -236,14 +248,15 @@ describe('Test Blockchain', () => {
 
     // #14
     it('Test validateChain with no error', async () => {
-        let blockchain = await new Blockchain.Blockchain();
+        let blockchain = new Blockchain.Blockchain();
+        await blockchain.initPromise;
         let wallet_addr = 'tb1q8d9zph5330g7h3xn5et8hddkex6fsds4jwk8j0';
         let block = new Block.Block({data: test_data, address: wallet_addr});
-        blockchain._addBlock(block);
+        await blockchain._addBlock(block);
         let block2 = new Block.Block({data: test_data, address: 'abc123'});
-        blockchain._addBlock(block2);
+        await blockchain._addBlock(block2);
         let block3 = new Block.Block({data: test_data, address: 'abc123'});
-        blockchain._addBlock(block3);
+        await blockchain._addBlock(block3);
 
         return blockchain.validateChain().then(result => {
             expect(result.length).toBe(0);

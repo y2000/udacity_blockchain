@@ -25,7 +25,7 @@ class Blockchain {
     constructor() {
         this.chain = [];
         this.height = -1;
-        this.initializeChain();
+        this.initPromise = this.initializeChain();
         console.debug('Finishing constructor..');
     }
 
@@ -71,8 +71,8 @@ class Blockchain {
             }
             block.height = self.height+1;
             block.time = new Date().getTime().toString().slice(0,-3);
-            block.hash = SHA256(JSON.stringify(block));
-            console.debug(`validated chain starts...`);
+            block.hash = SHA256(JSON.stringify(block)).toString();
+            console.debug(`validated chain starts, hash: ${block.hash}...`);
             let errors = await self.validateChain();
             console.debug(`validated chain ends...`);
             if (errors.length === 0){
@@ -127,7 +127,7 @@ class Blockchain {
                 let verified = bitcoinMessage.verify(message, address, signature);
                 if (verified){
                     let block = new BlockClass.Block({'star': star, 'address': address, 'message': message, 'signature': signature});
-                    self._addBlock(block);
+                    await self._addBlock(block);
                     resolve(block);
                 }else{
                     reject('INVALID SIGNATURE');
